@@ -1,0 +1,6 @@
+#spring:
+#  data:
+#    elasticsearch:
+#      cluster-nodes: localhost:9201
+#在ES7.0版本后，上述配置已经废弃
+#推荐使用基于http的REST通信（https://docs.spring.io/spring-data/elasticsearch/docs/3.2.6.RELEASE/reference/html/#elasticsearch.clients.transport）
