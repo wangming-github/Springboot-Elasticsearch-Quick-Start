@@ -1,0 +1,1157 @@
+{
+	"info": {
+		"_postman_id": "7d1c1aa5-7029-4f62-8fa3-121aa77b077e",
+		"name": "2.Elasticsearch",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "676442"
+	},
+	"item": [
+		{
+			"name": "ES",
+			"item": [
+				{
+					"name": "1.返回索引中所有的文档",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:9200/_search"
+					},
+					"response": []
+				},
+				{
+					"name": "2.查询（Nested类型）",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"query\": {\n        \"bool\": {\n            \"must\": [\n                {\n                    \"nested\": {\n                        \"path\": \"comments\",\n                        \"query\": {\n                            \"bool\": {\n                                \"must\": [\n                                    {\n                                        \"match\": {\n                                            \"comments.name\": \"Smith\"\n                                        }\n                                    },\n                                    {\n                                        \"match\": {\n                                            \"comments.age\": 33\n                                        }\n                                    }\n                                ]\n                            }\n                        }\n                    }\n                }\n            ]\n        }\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:9200/book/book/_search"
+					},
+					"response": []
+				},
+				{
+					"name": "2.0-查询（索引数据）",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:9200/book/book/_search",
+						"description": "term是完全匹配检索, 要用在不分词的字段上, 如果某个field在映射中被分词了, term检索将不起作用.\r\n所以, 不分词的field, 要在mapping中设置为不分词."
+					},
+					"response": []
+				},
+				{
+					"name": "2.1-查询（分页）",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"from\": 0,\n    \"size\": 10\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:9200/book/book/_search"
+					},
+					"response": []
+				},
+				{
+					"name": "2.5-查询（嵌套查询）",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Smith\",\n    \"age\": 33,\n    \"rating\": \"7\",\n    \"comment\": \"Very good post\",\n    \"commented_on\": \"2018-05-21\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/book/comment/find?comment=Smith",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"book",
+								"comment",
+								"find"
+							],
+							"query": [
+								{
+									"key": "comment",
+									"value": "Smith"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "3.新增（Nested类型）",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": 3,\n    \"title\": \"Hero\",\n    \"body\": \"Hero test body...\",\n    \"tags\": [\n        \"Heros\",\n        \"happy\"\n    ],\n    \"published_on\": \"2018-05-21\",\n    \"comments\": [\n        {\n            \"name\": \"steve\",\n            \"age\": 24,\n            \"rating\": 18,\n            \"comment\": \"Nice article..\",\n            \"commented_on\": \"2020-05-22\"\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:9200/book/book/3",
+						"description": "POST book/book/3\n{\n  \"id\": 3,\n  \"title\": \"Hero\",\n  \"body\": \"Hero test body...\",\n  \"tags\": [\"Heros\", \"happy\"],\n  \"published_on\": \"6 Oct 2018\",\n  \"comments\": [\n    {\n      \"name\": \"steve\",\n      \"age\": 24,\n      \"rating\": 18,\n      \"comment\": \"Nice article..\",\n      \"commented_on\": \"3 Nov 2018\"\n    }\n  ]\n}"
+					},
+					"response": []
+				},
+				{
+					"name": "4.修改（Nested类型）",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"script\": {\n        \"source\": \"for(e in ctx._source.comments){if (e.name == 'steve') {e.age = 10; e.comment= 'very very good article...';}}\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "localhost:9200/book/book/3/_update",
+						"description": "POST book/book/2/_update\r\n{\r\n  \"script\": {\r\n    \"source\": \"for(e in ctx._source.comments){if (e.name == 'steve') {e.age = 25; e.comment= 'very very good article...';}}\"\r\n  }\r\n}\r\n------------------\r\n将steve评论内容中的age值调整为25，同时调整了评论内容。"
+					},
+					"response": []
+				},
+				{
+					"name": "5.0-删除数据",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": "http://localhost:9200/book/book/3"
+					},
+					"response": []
+				},
+				{
+					"name": "5.1-删除（Nested类型）",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n \"script\": {\r\n    \"lang\": \"painless\",\r\n    \"source\": \"ctx._source.comments.removeIf(it -> it.name == \\\"John\\\");\"\r\n }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:9200/book/book/1/_update",
+						"description": "POST  book/book/1/_update\n{\n \"script\": {\n    \"lang\": \"painless\",\n    \"source\": \"ctx._source.comments.removeIf(it -> it.name == 'John');\"\n }\n}\n————————————————\n序号为1的评论原来有三条，现在删除John的评论数据，删除后评论数为2条。"
+					},
+					"response": []
+				},
+				{
+					"name": "5.5-删除",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"query\": {\r\n    \"match_all\": {}\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "localhost:9200/book/book/_delete_by_query"
+					},
+					"response": []
+				},
+				{
+					"name": "5.9-删除索引",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": "http://localhost:9200/boo*/",
+						"description": "curl -XDELETE \"http://localhost:9200/book/\""
+					},
+					"response": []
+				},
+				{
+					"name": "6.0-聚合（Nested类型）",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"size\": 0,\n  \"aggs\": {\n    \"comm_aggs\": {\n      \"nested\": {\n        \"path\": \"comments\"\n      },\n      \"aggs\": {\n        \"年龄最小\": {\n          \"min\": {\n            \"field\": \"comments.age\"\n          }\n        }\n      }\n    }\n  }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:9200/book/_search",
+						"description": "认知前提：nested聚合隶属于聚合分类中的Bucket聚合分类。\r\n聚合blog_new 中评论者年龄最小的值。"
+					},
+					"response": []
+				},
+				{
+					"name": "7.0.0-分词字段查询-match",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"query\": {\n        \"match\": {\n            \"body\": \"资产阶级\"\n        }\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:9200/book/book/_search"
+					},
+					"response": []
+				},
+				{
+					"name": "7.0.1-分词字段查询-common",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"query\": {\n        \"common\": {\n            \"body\": \"海明威\"\n        }\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:9200/book/book/_search"
+					},
+					"response": []
+				},
+				{
+					"name": "7.0.1-分词字段查询-multi_match",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"query\": {\n        \"multi_match\": {\n            \"query\": \"最后一课\",\n            \"fields\": [\n                \"title\"\n            ]\n        }\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:9200/book/book/_search"
+					},
+					"response": []
+				},
+				{
+					"name": "7.0.1-分词字段查询-match_phrase",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"query\": {\n        \"match_phrase\": {\n            \"body\": \"海明威\"\n        }\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:9200/book/book/_search"
+					},
+					"response": []
+				},
+				{
+					"name": "7.0.1-分词字段查询-match_phrase_prefix",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"query\": {\n        \"match_phrase_prefix\": {\n            \"body\": \"僧袍 象征\"\n        }\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:9200/book/book/_search"
+					},
+					"response": []
+				},
+				{
+					"name": "7.0-分词字段查询（8080）",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/book/body/find?body=Hero",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"book",
+								"body",
+								"find"
+							],
+							"query": [
+								{
+									"key": "body",
+									"value": "Hero"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "7.2-分词对象属性的结果",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:9200/book/book/6/_termvectors?fields=body",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9200",
+							"path": [
+								"book",
+								"book",
+								"6",
+								"_termvectors"
+							],
+							"query": [
+								{
+									"key": "fields",
+									"value": "body"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "7.3-分词参数结果",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{ \"analyzer\": \"ik_max_word\", \"text\": \"被誉为人类有史以来最佳读物至今全球发行量已达五亿册被誉为阅读率仅次于圣经的书籍\" }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:9200/_analyze/?pretty",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "9200",
+							"path": [
+								"_analyze",
+								""
+							],
+							"query": [
+								{
+									"key": "pretty",
+									"value": null
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "8.0-索引映射",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "localhost:9200/book/book/_mapping"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "1.基本操作",
+			"item": [
+				{
+					"name": "索引",
+					"item": [
+						{
+							"name": "索引 - 1.创建",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://127.0.0.1:8001/user"
+							},
+							"response": []
+						},
+						{
+							"name": "索引 - 2.查看所有索引",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://127.0.0.1:9200/_cat/indices?v",
+									"protocol": "http",
+									"host": [
+										"127",
+										"0",
+										"0",
+										"1"
+									],
+									"port": "9200",
+									"path": [
+										"_cat",
+										"indices"
+									],
+									"query": [
+										{
+											"key": "v",
+											"value": null
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "索引 - 3.查看单个索引",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": "http://127.0.0.1:9200/user"
+							},
+							"response": []
+						},
+						{
+							"name": "索引 - 4.删除索引",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": "http://127.0.0.1:9200/user"
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "文档",
+					"item": [
+						{
+							"name": "文档 - 创建 POST",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"title\": \"小米手机\",\n    \"category\": \"小米\",\n    \"images\": \"http://www.gulixueyuan.com/xm.jpg\",\n    \"price\": 3999\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://127.0.0.1:9200/shopping/_doc/"
+							},
+							"response": []
+						},
+						{
+							"name": "文档 - 创建 POST 自定义ID",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"title\": \"小米手机\",\n    \"category\": \"小米\",\n    \"images\": \"http://www.gulixueyuan.com/xm.jpg\",\n    \"price\": 3999\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://127.0.0.1:9200/shopping/_doc/2"
+							},
+							"response": []
+						},
+						{
+							"name": "文档 - 创建 PUT 自定义ID",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"title\": \"华为手机\",\n    \"category\": \"华为\",\n    \"images\": \"http://www.gulixueyuan.com/hw.jpg\",\n    \"price\": 1.00\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://127.0.0.1:9200/shopping/_doc/6"
+							},
+							"response": []
+						},
+						{
+							"name": "文档 - 创建 PUT  _create",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"title\": \"华为手机\",\n    \"category\": \"华为\",\n    \"images\": \"http://www.gulixueyuan.com/hw.jpg\",\n    \"price\": 1.00\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://127.0.0.1:9200/shopping/_create/7"
+							},
+							"response": []
+						},
+						{
+							"name": "文档 - 主键查询",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": "http://127.0.0.1:9200/shopping/_doc/1"
+							},
+							"response": []
+						},
+						{
+							"name": "文档 - 条件查询",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"query\": {\n        \"match\": {\n            \"category\": \"小米\"\n        }\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://127.0.0.1:9200/shopping/_search"
+							},
+							"response": []
+						},
+						{
+							"name": "文档 - 全量查询",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"query\": {\n        \"match_all\": {}\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://127.0.0.1:9200/user/_search"
+							},
+							"response": []
+						},
+						{
+							"name": "文档 - 全量查询 分页",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"query\": {\n        \"match_all\": {}\n    },\n    \"from\": 0,\n    \"size\": 2\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://127.0.0.1:9200/shopping/_search"
+							},
+							"response": []
+						},
+						{
+							"name": "文档 - 全量查询 指定字段",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"query\": {\n        \"match_all\": {}\n    },\n    \"_source\":  [\"title\"]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://127.0.0.1:9200/shopping/_search"
+							},
+							"response": []
+						},
+						{
+							"name": "文档 - 全量查询 排序",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"query\": {\n        \"match_all\": {}\n    },\n    \"_source\": [\n        \"title\",\n        \"price\"\n    ],\n    \"sort\": {\n        \"price\": {\n            \"order\": \"asc\" //ASC\n        }\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://127.0.0.1:9200/shopping/_search"
+							},
+							"response": []
+						},
+						{
+							"name": "文档 - 全量查询 and",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"query\": {\n        \"bool\": {\n            \"must\": [\n                {\n                    \"match\": {\n                        \"category\": \"小米\"\n                    }\n                },\n                {\n                    \"match\": {\n                        \"price\": 3999\n                    }\n                }\n            ]\n        }\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://127.0.0.1:9200/shopping/_search"
+							},
+							"response": []
+						},
+						{
+							"name": "文档 - 全量查询 OR",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"query\": {\n        \"bool\": {\n            \"should\": [\n                {\n                    \"match\": {\n                        \"category\": \"小米\"\n                    }\n                },\n                {\n                    \"match\": {\n                        \"price\": 3999\n                    }\n                }\n            ]\n        }\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://127.0.0.1:9200/shopping/_search"
+							},
+							"response": []
+						},
+						{
+							"name": "文档 - 全量查询 \"> <\"",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"query\": {\n        \"bool\": {\n            \"should\": [\n                {\n                    \"match\": {\n                        \"category\": \"小米\"\n                    }\n                },\n                {\n                    \"match\": {\n                        \"price\": 3999\n                    }\n                }\n            ],\n            \"filter\": {\n                \"range\": {\n                    \"price\": {\n                        \"gt\": 3000.0\n                    }\n                }\n            }\n        }\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://127.0.0.1:9200/shopping/_search"
+							},
+							"response": []
+						},
+						{
+							"name": "文档 - 全量查询 分词匹配",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"query\": {\n        \"match\": {\n            \"category\": \"米华\"\n        }\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://127.0.0.1:9200/shopping/_search"
+							},
+							"response": []
+						},
+						{
+							"name": "文档 - 全量查询 完全匹配",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"query\": {\n        \"match_phrase\": {//完全匹配\n            \"category\": \"米\"\n        }\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://127.0.0.1:9200/shopping/_search"
+							},
+							"response": []
+						},
+						{
+							"name": "文档 - 全量查询 高亮显示",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"query\": {\n        \"match\": {\n            \"category\": \"米\"\n        }\n    },\n    \"highlight\":{//高亮小时查询结果 <em>米</em>\n        \"fields\":{\n            \"category\":{}\n        }\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://127.0.0.1:9200/shopping/_search"
+							},
+							"response": []
+						},
+						{
+							"name": "文档 - 全量查询 聚合(分组)操作",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"aggs\": { //聚合操作\n        \"my_price_group\": { //聚合名称 自定义\n            \"terms\": { \n                \"field\": \"price\"//分组字段\n            }\n        }\n    },\n    \"size\": 0 //不用返回原始数据\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://127.0.0.1:9200/shopping/_search"
+							},
+							"response": []
+						},
+						{
+							"name": "文档 - 全量查询 平均值",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"aggs\": { //聚合操作\n        \"my_price_avg\": { //聚合名称 自定义\n            \"avg\": { \n                \"field\": \"price\"//平均值字段\n            }\n        }\n    },\n    \"size\": 0 //不用返回原始数据\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://127.0.0.1:9200/shopping/_search"
+							},
+							"response": []
+						},
+						{
+							"name": "文档 - 全量修改",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"title\": \"华为手机\",\n    \"category\": \"华为\",\n    \"images\": \"http://www.gulixueyuan.com/hw.jpg\",\n    \"price\": 4999\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://127.0.0.1:9200/shopping/_doc/1"
+							},
+							"response": []
+						},
+						{
+							"name": "文档 - 局部修改",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"doc\": {\n        \"price\": 1000.00\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://127.0.0.1:9200/shopping/_update/yZXW-4EB8w3SAntzyEnP"
+							},
+							"response": []
+						},
+						{
+							"name": "文档 - 删除",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": "http://127.0.0.1:9200/shopping/_doc/3"
+							},
+							"response": []
+						},
+						{
+							"name": "文档 - 条件删除",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"query\": {\n        \"match\": {\n            \"price\": 4000.00\n        }\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://127.0.0.1:9200/shopping/_delete_by_query"
+							},
+							"response": []
+						},
+						{
+							"name": "文档 - 全量查询 高亮显示 Copy 3",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"query\": {\n        \"match\": {\n            \"category\": \"米\"\n        }\n    },\n    \"highlight\":{//高亮小时查询结果 <em>米</em>\n        \"fields\":{\n            \"category\":{}\n        }\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://127.0.0.1:9200/shopping/_search"
+							},
+							"response": []
+						},
+						{
+							"name": "文档 - 全量查询 高亮显示 Copy 4",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"query\": {\n        \"match\": {\n            \"category\": \"米\"\n        }\n    },\n    \"highlight\":{//高亮小时查询结果 <em>米</em>\n        \"fields\":{\n            \"category\":{}\n        }\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://127.0.0.1:9200/shopping/_search"
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "映射",
+					"item": [
+						{
+							"name": "映射 - 1.创建索引",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"url": "http://127.0.0.1:9200/user"
+							},
+							"response": []
+						},
+						{
+							"name": "映射 - 2.索引创建映射",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"properties\": {\n        //字段名：任意填写，下面指定许多属性，例如：title、subtitle、images、price\n        \"name\": {\n            //type：类型，Elasticsearch 中支持的数据类型非常丰富，说几个关键的：\n            // String类型，又分两种：\n            //       text：可分词\n            //       keyword：不可分词，数据会作为完整字段进行匹配\n            // Numerical：数值类型，分两类\n            //      基本数据类型：long、integer、short、byte、double、float、half float\n            //      浮点数的高精度类型：scaled float\n            // Date：日期类型\n            // Aray：数组类型\n            // Object：对象\n            \"type\": \"text\",\n            // index：是否索引，默认为true，也就是说你不进行任何配置，所有字段都会被索引。\n            //       true：字段会被索引，则可以用来进行搜索\n            //       false：字段不会被索引，不能用来搜索\n            \"index\": true //索引查询\n            //store：是否将数据进行独立存储，默认为 false\n            //     原始的文本会存储在_source 里面，默认情况下其他提取出来的字段都不是独立存储的，\n            //     是从_source 里面提取出来的。当然你也可以独立的存储某个字段，只要设置 \"store\": true 即可，\n            //     获取独立存储的字段要比从_source 中解析快得多，但是也会占用更多的空间，所以要根据实际业务需求来设置。\n            //analyzer：分词器，这里的ik_max_word 即使用 ik 分词器,后面会有专门的章节学习\n        },\n        \"sex\": {\n            \"type\": \"keyword\", //类型: keyword，不分词完整匹配\n            \"index\": true\n        },\n        \"tel\": {\n            \"type\": \"keyword\", //类型: keyword，不分词完整匹配\n            \"index\": false //不能被索引\n        }\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://127.0.0.1:9200/user/_mapping"
+							},
+							"response": []
+						},
+						{
+							"name": "映射 - 3.查看映射",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": "http://127.0.0.1:9200/user/_mapping"
+							},
+							"response": []
+						},
+						{
+							"name": "映射 - 4.创建文档",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"小米\",\n    \"sex\": \"男的\",\n    \"tel\": \"111111\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://127.0.0.1:9200/user/_create/1"
+							},
+							"response": []
+						},
+						{
+							"name": "映射 - 5.全量查询",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"query\": {\n        \"match\": {\n            // \"name\":\"小\"//有数据\n            // \"sex\":\"男\"//无数据\n            \"tel\":\"1111\"//不支持查询\n        }\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://127.0.0.1:9200/user/_search"
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "集群",
+					"item": [
+						{
+							"name": "集群 - 集群状态",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": "http://127.0.0.1:9201/_cluster/health"
+							},
+							"response": []
+						},
+						{
+							"name": "索引 - 创建索引-指定分片",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"settings\": {\n        \"number_of_shards\": 3,  //3个主分片\n        \"number_of_replicas\": 1 //每个主分片的副本数为1\n    }\n}\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://127.0.0.1:9201/users"
+							},
+							"response": []
+						},
+						{
+							"name": "索引 - 创建索引-修改副本数",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n\"number_of_replicas\" : 2 //每个主分片的副本数为2\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://127.0.0.1:9201/product/_settings"
+							},
+							"response": []
+						},
+						{
+							"name": "索引 - 删除索引",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": "http://127.0.0.1:9201/users"
+							},
+							"response": []
+						},
+						{
+							"name": "索引 - 查看索引",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"query\": {\n        \"match_all\": {}\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": "http://127.0.0.1:9201/product/_search"
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		}
+	]
+}

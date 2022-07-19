@@ -6,6 +6,7 @@
     <modules>
         <module>ES-1</module>
         <module>ES-2-SpringData</module>
+        <module>ES-3-Flink</module>
     </modules>
     <parent>
         <groupId>org.springframework.boot</groupId>

@@ -72,7 +72,7 @@ public class IndexProductTest {
                     .id(Long.parseLong(String.valueOf(i)))//
                     .title(list.get(i1) + "手机")//
                     .price(Math.floor(random.nextDouble() * 100000) / 10)//
-                    .images("https://www.freesion.com/article/59481222940/").build());
+                    .images("https://tva1.sinaimg.cn/large/e6c9d24egy1h49h29j68xj21i40t0gpf.jpg").build());
         }
         productDao.saveAll(products);
     }
